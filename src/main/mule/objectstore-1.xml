@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6f10c826-2267-40e8-89c7-e8afae7df23e" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="e70d71e1-6ef5-4638-bb7c-9c1aa93bc33b" />
+	<flow name="objectstore-1Flow" doc:id="a7ab0391-ae92-40f3-bdba-fa4c95fa44b5" >
+		<http:listener doc:name="Listener" doc:id="dce007b9-9317-435c-a5fb-19b0c6457fb8" config-ref="HTTP_Listener_config" path="/store"/>
+		<os:store doc:name="Store" doc:id="58931d85-bc0d-422c-bd76-fdcc4dd8cd75" key="#[payload.id]" failOnNullValue="false">
+			<os:value ><![CDATA[#[payload.name]]]></os:value>
+		</os:store>
+		<logger level="INFO" doc:name="Logger" doc:id="9200f253-9b58-4a71-a10d-6c263ac7600a" message="#[payload]"/>
+	</flow>
+	<flow name="objectstore-1Flow1" doc:id="4c8f8431-b9aa-4eed-930f-51e3715a6f1e" >
+		<http:listener doc:name="Listener" doc:id="9df18694-5550-43d3-8881-c7c04b7b6a75" config-ref="HTTP_Listener_config" path="/retrieve"/>
+		<os:retrieve doc:name="Retrieve" doc:id="d80935ed-b879-426b-b18d-17fc53364fc5" key="#[attributes.queryParams.id]"/>
+	</flow>
+	<flow name="objectstore-1Flow2" doc:id="ac6a76f5-2973-4bda-8cc7-533a75b97aac" >
+		<http:listener doc:name="Listener" doc:id="09bdce11-c283-448e-b007-16275c2be18d" config-ref="HTTP_Listener_config" path="/retrieveall"/>
+		<os:retrieve-all doc:name="Retrieve all" doc:id="6b7247a7-a971-4576-9b67-184270c9e892" />
+		<ee:transform doc:name="Transform Message" doc:id="9ed52e13-15c8-4e0d-8daf-00ffc7b57297" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="objectstore-1Flow3" doc:id="d78c6dc7-72dc-4197-bfde-c2e40a7272d7" >
+		<http:listener doc:name="Listener" doc:id="c5f9cd91-131c-44fa-b31f-23c3826702fe" config-ref="HTTP_Listener_config" path="/retrieveallkeys"/>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="8f243500-8136-4d13-a315-da0ba4cf1f7e" />
+	</flow>
+	<flow name="objectstore-1Flow4" doc:id="9f48c7ec-d7a4-4143-9e9e-5fb5f8fb1b95" >
+		<http:listener doc:name="Listener" doc:id="2ca8be05-9390-4fa8-843a-ccf82b674590" config-ref="HTTP_Listener_config" path="/contains"/>
+		<os:contains doc:name="Contains" doc:id="2a7a9ba1-1210-4161-9a6c-d62ab06f0de2" key="#[attributes.queryParams.id]"/>
+		<ee:transform doc:name="Transform Message" doc:id="5b3fcc50-32e4-4a0b-ac8e-3780396b3a75" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="objectstore-1Flow5" doc:id="d344ea66-79c8-44bc-841c-ba17100410ad" >
+		<http:listener doc:name="Listener" doc:id="144caf46-bd62-4b01-b7b7-541b0c1f2f2a" config-ref="HTTP_Listener_config" path="/remove"/>
+		<os:remove doc:name="Remove" doc:id="584a62a9-6c48-4ef7-85fe-70f058152fda" key="#[attributes.queryParams.id]"/>
+	</flow>
+	<flow name="objectstore-1Flow6" doc:id="a177c45e-74aa-4dbc-8b3e-927f9e398eb6" >
+		<http:listener doc:name="Listener" doc:id="f49ef635-4f00-4eb8-9d32-e9a076705ffd" config-ref="HTTP_Listener_config" path="/clear"/>
+		<os:clear doc:name="Clear" doc:id="5ee6237f-d3a4-40b0-8014-0ee8d2967766" />
+	</flow>
+</mule>
